@@ -10,8 +10,9 @@ function juliaPlot(
 		   R::Float64 = 5.0, # Escape radius
 		   aleph::Float64 = 0.8, # Proportion of escape radius to show
 		   I::Integer = 100, # maximum iteration number
+		   f::Function = z->z^2;
 		   )::Plots.Plot{Plots.GRBackend}
-	f(z) = z^2+c;
+	f = f+c;
 	size = (1920,1080);
 	pl = heatmap(
 		     aspect_ratio=:equal,
