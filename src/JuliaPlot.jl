@@ -12,7 +12,7 @@ function juliaPlot(
 		   I::Integer = 100, # maximum iteration number
 		   f::Function = z->z^2, # function to iterate
 		   )::Plots.Plot{Plots.GRBackend}
-	f = f+c;
+	f = z->f(z)+c;
 	size = (1920,1080);
 	pl = heatmap(
 		     aspect_ratio=:equal,
