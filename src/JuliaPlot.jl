@@ -12,7 +12,7 @@ function juliaPlot(
 		   I::Integer = 100, # maximum iteration number
 		   f::Function = z->z^2, # function to iterate
 		   )::Plots.Plot{Plots.GRBackend}
-	f(z) = f(z)+c;
+	g(z) = f(z)+c;
 	size = (1920,1080);
 	pl = heatmap(
 		     aspect_ratio=:equal,
@@ -25,7 +25,7 @@ function juliaPlot(
 	x = range(-aleph*R,aleph*R,length=res);
 	y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]));
 	heatmap!(pl,
-		 x,y,juliaValue.(f,complex.(x',y),R,I),
+		 x,y,juliaValue.(g,complex.(x',y),R,I),
 		 color=:hawaii,padding=(0.0,0.0),margins=(0.0,0.0),
 		 );
 	annotate!(pl,
