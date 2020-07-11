@@ -10,7 +10,7 @@ function juliaPlot(
 		   R::Float64 = 5.0, # Escape radius
 		   aleph::Float64 = 0.8, # Proportion of escape radius to show
 		   I::Integer = 100, # maximum iteration number
-		   f::Function = z->z^2;
+		   f::Function = z->z^2, # function to iterate
 		   )::Plots.Plot{Plots.GRBackend}
 	f = f+c;
 	size = (1920,1080);
