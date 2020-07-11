@@ -1,7 +1,7 @@
 module JuliaPlot
 using Plots, LaTeXStrings, Printf
 
-export juliaPlot()
+export juliaPlot
 
 function juliaPlot(
 		   ;
