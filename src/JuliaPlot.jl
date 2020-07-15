@@ -44,11 +44,22 @@ function juliaValue(
 		    )::Int64
 	i = 0;
 	z=z_0;
-	while( abs2(z) < R^2 && i<I )
+	R = R^2;
+	while( abs2(z) < R && i<I )
 		z = f(z);
 		i+=1;
 	end
 	return i;
 end # function juliaValue
+
+function juliaValues(
+		     f::Function, # Function to evaluate
+		     z_0::Complex, # Starting point
+		     R::Real, # Escape radius
+		     I::Integer=100, # Max i
+		     )::Vector{Complex{Float64}}
+	R = R^2;
+	return collect(Complex{Float64},takewhile(x->abs2(x)<R,IterTools.take(iterated(f,z_0),I)));
+end # function juliaValue2
 
 end # module
