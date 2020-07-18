@@ -1,5 +1,5 @@
 module JuliaPlot
-using Plots, LaTeXStrings, Printf
+using Plots, LaTeXStrings, Printf, Polynomials
 
 export juliaPlot
 
@@ -8,11 +8,15 @@ function juliaPlot(
 		   c::Complex = complex(0.6,0.7), # function offset
 		   res::Integer = 200, # x resolution
 		   R::Float64 = 5.0, # Escape radius
-		   aleph::Float64 = 0.8, # Proportion of escape radius to show
+		   aleph::Float64 = 0.8, # Proportion of escape radius to draw
 		   I::Integer = 100, # maximum iteration number
-		   f::Function = z->z^2, # function to iterate
+		   f::Union{Function,Polynomial} = Polynomial([0,0,1]), # function to iterate
 		   )::Plots.Plot{Plots.GRBackend}
-	g(z) = f(z)+c;
+	if isa(f,Function)
+		g(z) = f(z)+c;
+	else
+		g = f+c
+	end
 	size = (1920,1080);
 	pl = heatmap(
 		     aspect_ratio=:equal,
@@ -27,17 +31,26 @@ function juliaPlot(
 	heatmap!(pl,
 		 x,y,juliaValue.(g,complex.(x',y),R,I),
 		 color=:hawaii,padding=(0.0,0.0),margins=(0.0,0.0),
-		 );
+	);
+	if isa(f,Function)
+		annotation = LaTeXString(@sprintf("\$c=%.4f%+.4fi\$",real(c),imag(c)))
+	else
+		io = IOBuffer();
+		print(io,"\$");
+		printpoly(io,g,MIME"text/latex"(),descending_powers=true);
+		print(io,"\$");
+		annotation = LaTeXString(String(take!(io)));
+	end
 	annotate!(pl,
-		  0.85*aleph*R,
+		  0.95*aleph*R,
 		  -0.9*aleph*R/size[1]*size[2],
-		  LaTeXString(@sprintf("\$c=%.4f%+.4fi\$",real(c),imag(c))),
+		  text(annotation,14,:right),
 		  );
 	return pl;
 end # function juliaPlot
 
 function juliaValue(
-		    f::Function, # Function to evaluate
+		    f::Union{Function,Polynomial}, # Function to evaluate
 		    z_0::Complex, # Starting point
 		    R::Real, # Escape radius
 		    I::Integer=100, # Max i
@@ -53,7 +66,7 @@ function juliaValue(
 end # function juliaValue
 
 function juliaValues(
-		     f::Function, # Function to evaluate
+		     f::Union{Function,Polynomial}, # Function to evaluate
 		     z_0::Complex, # Starting point
 		     R::Real, # Escape radius
 		     I::Integer=100, # Max i
