@@ -10,7 +10,7 @@ function juliaPlot(
                    R::Float64 = 5.0, # Escape radius
                    aleph::Float64 = 0.8, # Proportion of escape radius to draw
                    I::Integer = 100, # maximum iteration number
-                   f::Union{Function,Polynomial{Complex},AbstractVector} = Polynomial([0.0,0.0,1.0]), # function to iterate
+                   f::Union{Function,Polynomial{Complex},AbstractVector} = Polynomial{Complex}([0.0,0.0,1.0]), # function to iterate
                    size::Tuple{Integer,Integer} = (1920,1080),
                    filename::Union{String,Nothing} = nothing,
                   )::Plots.Plot{Plots.GRBackend}
