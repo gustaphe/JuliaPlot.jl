@@ -11,7 +11,7 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 LaTeXStrings = "1.1"
-Plots = "1.5"
+Plots = "1.1.2"
 Polynomials = "1.1"
 
 julia = "1"
