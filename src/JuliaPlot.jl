@@ -1,5 +1,5 @@
 module JuliaPlot
-using Plots, LaTeXStrings, Printf, Polynomials
+using Plots, Latexify, LaTeXStrings, Printf, Polynomials
 
 export juliaPlot
 
@@ -10,14 +10,17 @@ function juliaPlot(
 		   R::Float64 = 5.0, # Escape radius
 		   aleph::Float64 = 0.8, # Proportion of escape radius to draw
 		   I::Integer = 100, # maximum iteration number
-		   f::Union{Function,Polynomial} = Polynomial([0,0,1]), # function to iterate
+		   f::Union{Function,Polynomial,AbstractVector} = Polynomial([0,0,1]), # function to iterate
+           size::Tuple{Integer,Integer} = (1920,1080),
+           filename::Union{String,Nothing} = nothing,
 		   )::Plots.Plot{Plots.GRBackend}
 	if isa(f,Function)
 		g(z) = f(z)+c;
-	else
+	elseif isa(f,AbstractVector)
+        g = Polynomial(f)+c
+    else
 		g = f+c
 	end
-	size = (1920,1080);
 	pl = heatmap(
 		     aspect_ratio=:equal,
 		     size=size,
@@ -46,6 +49,9 @@ function juliaPlot(
 		  -0.9*aleph*R/size[1]*size[2],
 		  text(annotation,14,:right),
 		  );
+    if !isnothing(filename)
+        savefig(pl,filename)
+    end
 	return pl;
 end # function juliaPlot
 
