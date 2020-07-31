@@ -13,7 +13,7 @@ function juliaPlot(
                    f::Union{AbstractVector} = [0.0,0.0,1.0], # function to iterate
                    size::Tuple{Integer,Integer} = (1920,1080),
                    filename::Union{String,Nothing} = nothing,
-                   colorscheme::Symbol = :hawaii,
+                   color::Symbol = :hawaii,
                    pl::Plots.Plot = heatmap(
                                             aspect_ratio=:equal,
                                             axis=false,
@@ -29,7 +29,8 @@ function juliaPlot(
     values = juliaValue.(g,complex.(x',y),R,I)
     heatmap!(pl,
              x,y,values,
-             color=colorscheme,padding=(0.0,0.0),margins=(0.0,0.0),
+             color=color,padding=(0.0,0.0),margins=(0.0,0.0),
+             size=size,
             );
     io = IOBuffer();
     print(io,"\$");
@@ -37,9 +38,10 @@ function juliaPlot(
     print(io,"\$");
     annotation = LaTeXString(String(take!(io)));
     annotate!(pl,
-              0.95*aleph*R,
+              0.9*aleph*R,
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
+              size=size,
              );
     if !isnothing(filename)
         savefig(pl,filename)
@@ -56,7 +58,7 @@ function mandelbrotPlot(
                         f::AbstractVector = [0.0,0.0,1.0],
                         size::Tuple{Integer,Integer} = (1920,1080),
                         filename::Union{String,Nothing} = nothing,
-                        colorscheme::Symbol = :hawaii,
+                        color::Symbol = :hawaii,
                         pl::Plots.Plot = heatmap(
                                                  aspect_ratio=:equal,
                                                  axis=false,
@@ -72,27 +74,37 @@ function mandelbrotPlot(
     values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I);
     heatmap!(pl,
              x,y,values,
-             color=colorscheme,padding=(0.0,0.0),margins=(0.0,0.0),
+             color=color,padding=(0.0,0.0),margins=(0.0,0.0),
+             size=size,
             );
     (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))));
     c = complex(x[x_i],y[y_i]);
     plot!(pl,
           [x[x_i]],[y[y_i]],
           seriestype=:scatter,
-          color=:black
+          marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
+          size=size,
          )
+    if !isnothing(filename)
+        savefig(pl,filename)
+    end
     return c;
-end
+end # mandelbrotPlot
 
 function plotBoth(
                   ;
                   f=[0.0,0.0,1.0],
                   res=2000,
-                  size=(2000,1000),
+                  sizes=(2000,1000),
+                  filename=nothing,
+                  color=:hawaii,
                  )
+    sizes = eltype(sizes)<:Integer ? (sizes,sizes) : sizes
+    res = typeof(res)<:Tuple ? res : (res,res)
+    filenames = eltype(filename)<:String ? filename : (nothing,nothing)
     pl1 = heatmap(
                   aspect_ratio=:equal,
-                  size=size,
+                  size=sizes[1],
                   axis=false,
                   legend=nothing,
                   ticks=nothing,
@@ -100,7 +112,7 @@ function plotBoth(
                  )
     pl2 = heatmap(
                   aspect_ratio=:equal,
-                  size=size,
+                  size=sizes[2],
                   axis=false,
                   legend=nothing,
                   ticks=nothing,
@@ -109,20 +121,33 @@ function plotBoth(
     c = mandelbrotPlot(
                        ;
                        f=f,
-                       res=res,
-                       size=size,
+                       res=res[1],
+                       size=sizes[1],
                        pl=pl1,
+                       filename=filenames[1],
+                       color=color,
                       )
     juliaPlot(
               ;
               c=c,
               f=f,
-              res=res,
-              size=size,
+              res=res[2],
+              size=sizes[2],
               pl=pl2,
+              filename=filenames[2],
+              color=color,
              )
-    return plot(pl1,pl2,layout=(2,1))
-end
+    l = grid(2,1,heights=getindex.(sizes,2)./sum(getindex.(sizes,2)))
+    pl = plot(pl1,pl2,
+              layout=( # TODO I think you have to specify size here...
+                      l
+                     ),
+              size=(maximum(getindex.(sizes,1)),sum(getindex.(sizes,2))));
+    if eltype(filename)<:String
+        savefig(pl,filename)
+    end
+    return pl
+end # plotBoth
 
 function juliaValue(
                     f::Polynomial, # Function to evaluate
