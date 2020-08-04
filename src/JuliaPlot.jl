@@ -22,31 +22,31 @@ function juliaPlot(
                                             bg=:black,
                                            )
                   )
-    heatmap!(pl,size=size);
-    g = Polynomial(f)+c
-    x = range(-aleph*R,aleph*R,length=res);
-    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]));
+    heatmap!(pl;size)
+    g = Polynomial{Complex{Float64}}(f)+c
+    x = range(-aleph*R,aleph*R,length=res)
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g,complex.(x',y),R,I)
     heatmap!(pl,
              x,y,values,
              color=color,padding=(0.0,0.0),margins=(0.0,0.0),
              size=size,
-            );
-    io = IOBuffer();
-    print(io,"\$");
-    printpoly(io,g,MIME"text/latex"(),descending_powers=true);
-    print(io,"\$");
-    annotation = LaTeXString(String(take!(io)));
+            )
+    io = IOBuffer()
+    print(io,"\$")
+    printpoly(io,g,MIME"text/latex"(),descending_powers=true)
+    print(io,"\$")
+    annotation = LaTeXString(String(take!(io)))
     annotate!(pl,
               0.9*aleph*R,
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
               size=size,
-             );
+             )
     if !isnothing(filename)
         savefig(pl,filename)
     end
-    return pl;
+    return pl
 end # function juliaPlot
 
 function mandelbrotPlot(
@@ -67,28 +67,40 @@ function mandelbrotPlot(
                                                  bg=:black,
                                                 ),
                        )::Complex{Float64}
-    heatmap!(pl,size=size);
-    g = Polynomial(f);
-    x = range(-aleph*R,aleph*R,length=res);
-    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]));
-    values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I);
+    heatmap!(pl;size)
+    g = Polynomial{Complex{Float64}}(f)
+    x = range(-aleph*R,aleph*R,length=res)
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
+    values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I)
     heatmap!(pl,
              x,y,values,
              color=color,padding=(0.0,0.0),margins=(0.0,0.0),
              size=size,
-            );
-    (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))));
-    c = complex(x[x_i],y[y_i]);
+            )
+    (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))))
+    c = complex(x[x_i],y[y_i])
+    io = IOBuffer()
+    print(io,"\$")
+    printpoly(io,g,MIME"text/latex"(),descending_powers=true)
+    print(io,"\$")
+    annotation = LaTeXString(String(take!(io)))
+    annotate!(pl,
+              0.9*aleph*R,
+              -0.9*aleph*R/size[1]*size[2],
+              text(annotation,14,:right),
+              size=size,
+             )
     plot!(pl,
           [x[x_i]],[y[y_i]],
           seriestype=:scatter,
           marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
+          padding=(0.0,0.0),margins=(0.0,0.0),
           size=size,
          )
     if !isnothing(filename)
         savefig(pl,filename)
     end
-    return c;
+    return c
 end # mandelbrotPlot
 
 function plotBoth(
@@ -137,12 +149,15 @@ function plotBoth(
               filename=filenames[2],
               color=color,
              )
-    l = grid(2,1,heights=getindex.(sizes,2)./sum(getindex.(sizes,2)))
+    l = @layout([
+                 a;
+                 b
+                ])
     pl = plot(pl1,pl2,
               layout=( # TODO I think you have to specify size here...
                       l
                      ),
-              size=(maximum(getindex.(sizes,1)),sum(getindex.(sizes,2))));
+              size=(maximum(getindex.(sizes,1)),sum(getindex.(sizes,2))))
     if eltype(filename)<:String
         savefig(pl,filename)
     end
@@ -155,14 +170,14 @@ function juliaValue(
                     R::Real, # Escape radius
                     I::Integer=100, # Max i
                    )::Int64
-    i = 0;
-    z=z_0;
-    R = R^2;
+    i = 0
+    z=z_0
+    R = R^2
     while( abs2(z) < R && i<I )
-        z = f(z);
-        i+=1;
+        z = f(z)
+        i+=1
     end
-    return i;
+    return i
 end # function juliaValue
 
 function juliaValues(
@@ -171,8 +186,8 @@ function juliaValues(
                      R::Real, # Escape radius
                      I::Integer=100, # Max i
                     )::Vector{Complex{Float64}}
-    R = R^2;
-    return collect(Complex{Float64},takewhile(x->abs2(x)<R,IterTools.take(iterated(f,z_0),I)));
+    R = R^2
+    return collect(Complex{Float64},takewhile(x->abs2(x)<R,IterTools.take(iterated(f,z_0),I)))
 end # function juliaValue
 
 end # module
