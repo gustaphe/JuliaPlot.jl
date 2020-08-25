@@ -12,10 +12,9 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 LaTeXStrings = "1.1"
-Latexify = "0.13"
-Polynomials = "1.1"
+Latexify = "0.13, 0.14"
 Plots = "1.6"
-
+Polynomials = "1.1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
