@@ -1,7 +1,7 @@
 module JuliaPlot
 using Plots, Latexify, LaTeXStrings, Printf, Polynomials
 
-export juliaPlot,mandelbrotPlot,plotBoth
+export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot
 
 function juliaPlot(
                    ;
@@ -25,7 +25,8 @@ function juliaPlot(
     heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)+c
     x = range(-aleph*R,aleph*R,length=res)
-    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
+              length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g,complex.(x',y),R,I)
     heatmap!(pl,
              x,y,values,
@@ -59,46 +60,49 @@ function mandelbrotPlot(
                         size::Tuple{Integer,Integer} = (1920,1080),
                         filename::Union{String,Nothing} = nothing,
                         color::Symbol = :hawaii,
-                        pl::Plots.Plot = heatmap(
-                                                 aspect_ratio=:equal,
-                                                 axis=false,
-                                                 legend=nothing,
-                                                 ticks=nothing,
-                                                 bg=:black,
-                                                ),
+                        pl::Union{Plots.Plot,Nothing} = heatmap(
+                                                                aspect_ratio=:equal,
+                                                                axis=false,
+                                                                legend=nothing,
+                                                                ticks=nothing,
+                                                                bg=:black,
+                                                               ),
                        )::Complex{Float64}
-    heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph*R,aleph*R,length=res)
-    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
+              length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I)
-    heatmap!(pl,
-             x,y,values,
-             color=color,padding=(0.0,0.0),margins=(0.0,0.0),
-             size=size,
-            )
     (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))))
     c = complex(x[x_i],y[y_i])
-    io = IOBuffer()
-    print(io,"\$")
-    printpoly(io,g,MIME"text/latex"(),descending_powers=true)
-    print(io,"\$")
-    annotation = LaTeXString(String(take!(io)))
-    annotate!(pl,
-              0.9*aleph*R,
-              -0.9*aleph*R/size[1]*size[2],
-              text(annotation,14,:right),
+    if !isnothing(pl)
+        io = IOBuffer()
+        print(io,"\$")
+        printpoly(io,g,MIME"text/latex"(),descending_powers=true)
+        print(io,"\$")
+        annotation = LaTeXString(String(take!(io)))
+        heatmap!(pl;size)
+        heatmap!(pl,
+                 x,y,values,
+                 color=color,padding=(0.0,0.0),margins=(0.0,0.0),
+                 size=size,
+                )
+        annotate!(pl,
+                  0.9*aleph*R,
+                  -0.9*aleph*R/size[1]*size[2],
+                  text(annotation,14,:right),
+                  size=size,
+                 )
+        plot!(pl,
+              [x[x_i]],[y[y_i]],
+              seriestype=:scatter,
+              marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
+              padding=(0.0,0.0),margins=(0.0,0.0),
               size=size,
              )
-    plot!(pl,
-          [x[x_i]],[y[y_i]],
-          seriestype=:scatter,
-          marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
-          padding=(0.0,0.0),margins=(0.0,0.0),
-          size=size,
-         )
-    if !isnothing(filename)
-        savefig(pl,filename)
+        if !isnothing(filename)
+            savefig(pl,filename)
+        end
     end
     return c
 end # mandelbrotPlot
@@ -163,6 +167,33 @@ function plotBoth(
     end
     return pl
 end # plotBoth
+
+function moreLikelyToBeInterestingPlot(
+                                       ;
+                                       f=[0.0,0.0,1.0],
+                                       res=(300,2000),
+                                       sizes=((300,200),(2000,1000)),
+                                       filename=nothing,
+                                       color=:hawaii,
+                                      )
+    sizes = eltype(sizes)<:Integer ? (sizes,sizes) : sizes
+    res = typeof(res)<:Tuple ? res : (res,res)
+    c = mandelbrotPlot(
+                       res=res[1],
+                       f=f,
+                       size=sizes[1],
+                       color=color,
+                       pl=nothing,
+                      )
+    juliaPlot(
+              c=c, # function offset
+              res=res[2], # x resolution
+              f=f, # function to iterate
+              size=sizes[2],
+              filename=filename,
+              color=color,
+             )
+end
 
 function juliaValue(
                     f::Polynomial, # Function to evaluate
