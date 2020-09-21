@@ -38,14 +38,17 @@ function juliaPlot(
     printpoly(io,g,MIME"text/latex"(),descending_powers=true)
     print(io,"\$")
     annotation = LaTeXString(String(take!(io)))
+    printpoly(io,g,MIME"text/plain"(),descending_powers=true)
+    plannotation = String(take!(io))
     annotate!(pl,
               0.9*aleph*R,
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
               size=size,
              )
+    annotcoords=(0.8-0.011*length(plannotation),1.0,-1,-0.8) # x1, x2, y1, y2
     plot!(pl,
-          Shape([0.6,1.0,1.0,0.6]*aleph*R,[-1,-1,-0.8,-0.8]*aleph*R/size[1]*size[2]
+          Shape([annotcoords[[1,2,2,1]]...]*aleph*R,[annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2]
                ),
           opacity=0.1,color=:white,
          )
