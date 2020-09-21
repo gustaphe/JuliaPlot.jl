@@ -44,6 +44,12 @@ function juliaPlot(
               text(annotation,14,:right),
               size=size,
              )
+    plot!(pl,
+          Shape([0.6,1.0,1.0,0.6]*aleph*R,[-1,-1,-0.8,-0.8]*aleph*R/size[1]*size[2]
+               ),
+          opacity=0.1,color=:white,
+         )
+
     if !isnothing(filename)
         savefig(pl,filename)
     end
