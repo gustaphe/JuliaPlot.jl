@@ -1,7 +1,7 @@
 module JuliaPlot
 using Plots, Latexify, LaTeXStrings, Printf, Polynomials
 
-export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot
+export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation
 
 function juliaPlot(
                    ;
@@ -10,7 +10,7 @@ function juliaPlot(
                    R::Float64 = 2.0, # Escape radius
                    aleph::Float64 = 0.8, # Proportion of escape radius to draw
                    I::Integer = 100, # maximum iteration number
-                   f::Union{AbstractVector} = [0.0,0.0,1.0], # function to iterate
+                   f::AbstractVector = [0.0,0.0,1.0], # function to iterate
                    size::Tuple{Integer,Integer} = (1920,1080),
                    filename::Union{String,Nothing} = nothing,
                    color::Symbol = :hawaii,
@@ -82,6 +82,7 @@ function mandelbrotPlot(
                                                                 bg=:black,
                                                                ),
                        )::Complex{Float64}
+    heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
@@ -233,6 +234,43 @@ function juliaValues(
                     )::Vector{Complex{Float64}}
     R = R^2
     return collect(Complex{Float64},takewhile(x->abs2(x)<R,IterTools.take(iterated(f,z_0),I)))
-end # function juliaValue
+end # function juliaValues
+
+function julianimation(
+                       ;
+                       f=[0.0,0.0,1.0],
+                       res=500,
+                       N_t=10,
+                       filename=nothing,
+                       color=:rainbow,
+                       R::Float64 = 2.0, # Escape radius
+                       aleph::Float64 = 0.8, # Proportion of escape radius to draw
+                       I::Integer = 100, # maximum iteration number
+                       size::Tuple{Integer,Integer} = (1920,1080),
+                      )
+
+    x = range(-aleph*R,aleph*R,length=res)
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
+    mandelbrotvalues=juliaValue.(Polynomial{Complex{Float64}}(f).+complex.(x',y),complex(0.0,0.0),R,I)
+
+    # Choose one coordinate inside and one outside the set
+    extr = extrema(mandelbrotvalues)
+    lims = [0.9 0.1;0.1 0.9]*[extr...]
+    i_small = Tuple(rand(findall( (mandelbrotvalues .< lims[1]) )))
+    c_small = Complex(x[i_small[2]],y[i_small[1]])
+    i_large = Tuple(rand(findall( (mandelbrotvalues .> lims[2]) )))
+    c_large = Complex(x[i_large[2]],y[i_large[1]])
+    print("$c_small\t$c_large\t$extr\n")
+
+    @animate for c in range(c_small,c_large,length=N_t)
+        print("$c\n")
+        juliavalues = juliaValue.(Polynomial{Complex{Float64}}(f)+c,complex.(x',y),R,I)
+        pl= heatmap(x,y,juliavalues,ticks=nothing,colorbar=false)
+        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=nothing,colorbar=false,subplot=2)
+        plot!(pl,real.([c_small,c_large]),imag.([c_small,c_large]),subplot=2)
+        scatter!(pl,[real(c)],[imag(c)],subplot=2)
+    end
+end
+
 
 end # module
