@@ -14,6 +14,7 @@ function juliaPlot(
                    size::Tuple{Integer,Integer} = (1920,1080),
                    filename::Union{String,Nothing} = nothing,
                    color::Symbol = :hawaii,
+                   labelplatecolor::Union{Symbol,Nothing} = :white,
                    pl::Plots.Plot = heatmap(
                                             aspect_ratio=:equal,
                                             axis=false,
@@ -40,18 +41,22 @@ function juliaPlot(
     annotation = LaTeXString(String(take!(io)))
     printpoly(io,g,MIME"text/plain"(),descending_powers=true)
     plannotation = String(take!(io))
+    annotcoords=(0.8-0.011*length(plannotation),1.0,-0.95,-0.85) # x1, x2, y1, y2
+    if !isnothing(labelplatecolor)
+        plot!(pl,
+              Shape(
+                    [annotcoords[[1,2,2,1]]...]*aleph*R, # x1, x2, x2, x1
+                    [annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2] # y1, y1, y2, y2
+                   ),
+              opacity=0.1,color=labelplatecolor,linecolor=nothing
+             )
+    end
     annotate!(pl,
               0.9*aleph*R,
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
               size=size,
              )
-    annotcoords=(0.8-0.011*length(plannotation),1.0,-1,-0.8) # x1, x2, y1, y2
-    plot!(pl,
-          Shape([annotcoords[[1,2,2,1]]...]*aleph*R,[annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2]
-               ),
-          opacity=0.1,color=:white,
-         )
 
     if !isnothing(filename)
         savefig(pl,filename)
