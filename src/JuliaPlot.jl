@@ -23,7 +23,7 @@ function juliaPlot(
                                             bg=:black,
                                            )
                   )
-    heatmap!(pl;size)
+    #heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)+c
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
@@ -82,7 +82,6 @@ function mandelbrotPlot(
                                                                 bg=:black,
                                                                ),
                        )::Complex{Float64}
-    heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
@@ -190,6 +189,7 @@ function moreLikelyToBeInterestingPlot(
                                        sizes=((300,200),(2000,1000)),
                                        filename=nothing,
                                        color=:hawaii,
+                                       labelplatecolor=:white,
                                       )
     sizes = eltype(sizes)<:Integer ? (sizes,sizes) : sizes
     res = typeof(res)<:Tuple ? res : (res,res)
@@ -207,6 +207,7 @@ function moreLikelyToBeInterestingPlot(
               size=sizes[2],
               filename=filename,
               color=color,
+              labelplatecolor=labelplatecolor,
              )
 end
 
