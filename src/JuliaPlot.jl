@@ -23,7 +23,6 @@ function juliaPlot(
                                             bg=:black,
                                            )
                   )
-    #heatmap!(pl;size)
     g = Polynomial{Complex{Float64}}(f)+c
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
@@ -218,7 +217,7 @@ function juliaValue(
                     I::Integer=100, # Max i
                    )::Int64
     i = 0
-    z=z_0
+    z = z_0
     R = R^2
     while( abs2(z) < R && i<I )
         z = f(z)
