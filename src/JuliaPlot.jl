@@ -20,7 +20,7 @@ function juliaPlot(
                                             axis=false,
                                             legend=nothing,
                                             ticks=nothing,
-                                            bg=:black,
+                                            bg=nothing,
                                            )
                   )
     g = Polynomial{Complex{Float64}}(f)+c
@@ -78,7 +78,7 @@ function mandelbrotPlot(
                                                                 axis=false,
                                                                 legend=nothing,
                                                                 ticks=nothing,
-                                                                bg=:black,
+                                                                bg=nothing,
                                                                ),
                        )::Complex{Float64}
     g = Polynomial{Complex{Float64}}(f)
@@ -137,7 +137,7 @@ function plotBoth(
                   axis=false,
                   legend=nothing,
                   ticks=nothing,
-                  bg=:black,
+                  bg=nothing,
                  )
     pl2 = heatmap(
                   aspect_ratio=:equal,
@@ -145,7 +145,7 @@ function plotBoth(
                   axis=false,
                   legend=nothing,
                   ticks=nothing,
-                  bg=:black,
+                  bg=nothing,
                  )
     c = mandelbrotPlot(
                        ;
