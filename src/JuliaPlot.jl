@@ -17,10 +17,10 @@ function juliaPlot(
                    labelplatecolor::Union{Symbol,Nothing} = :white,
                    pl::Plots.Plot = heatmap(
                                             aspect_ratio=:equal,
-                                            axis=false,
+                                            axis=:black,
                                             legend=nothing,
                                             ticks=nothing,
-                                            bg=nothing,
+                                            bg=:black,
                                            )
                   )
     g = Polynomial{Complex{Float64}}(f)+c
@@ -75,10 +75,10 @@ function mandelbrotPlot(
                         color::Symbol = :hawaii,
                         pl::Union{Plots.Plot,Nothing} = heatmap(
                                                                 aspect_ratio=:equal,
-                                                                axis=false,
+                                                                axis=:black,
                                                                 legend=nothing,
                                                                 ticks=nothing,
-                                                                bg=nothing,
+                                                                bg=:black,
                                                                ),
                        )::Complex{Float64}
     g = Polynomial{Complex{Float64}}(f)
@@ -134,18 +134,18 @@ function plotBoth(
     pl1 = heatmap(
                   aspect_ratio=:equal,
                   size=sizes[1],
-                  axis=false,
+                  axis=:black,
                   legend=nothing,
                   ticks=nothing,
-                  bg=nothing,
+                  bg=:black,
                  )
     pl2 = heatmap(
                   aspect_ratio=:equal,
                   size=sizes[2],
-                  axis=false,
+                  axis=:black,
                   legend=nothing,
                   ticks=nothing,
-                  bg=nothing,
+                  bg=:black,
                  )
     c = mandelbrotPlot(
                        ;
@@ -265,8 +265,8 @@ function julianimation(
     @animate for c in range(c_small,c_large,length=N_t)
         print("$c\n")
         juliavalues = juliaValue.(Polynomial{Complex{Float64}}(f)+c,complex.(x',y),R,I)
-        pl= heatmap(x,y,juliavalues,ticks=nothing,colorbar=false)
-        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=nothing,colorbar=false,subplot=2)
+        pl= heatmap(x,y,juliavalues,ticks=nothing,colorbar=nothing)
+        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=nothing,colorbar=nothing,subplot=2)
         plot!(pl,real.([c_small,c_large]),imag.([c_small,c_large]),subplot=2)
         scatter!(pl,[real(c)],[imag(c)],subplot=2)
     end
