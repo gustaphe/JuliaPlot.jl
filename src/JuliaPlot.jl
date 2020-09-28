@@ -17,7 +17,7 @@ function juliaPlot(
                    labelplatecolor::Union{Symbol,Nothing} = :white,
                    pl::Plots.Plot = heatmap(
                                             aspect_ratio=:equal,
-                                            axis=:black,
+                                            axis=false,
                                             legend=nothing,
                                             ticks=nothing,
                                             bg=:black,
@@ -30,24 +30,30 @@ function juliaPlot(
     values = juliaValue.(g,complex.(x',y),R,I)
     heatmap!(pl,
              x,y,values,
-             color=color,padding=(0.0,0.0),margins=(0.0,0.0),
+             color=color,
+             padding=(0.0,0.0),margins=(0.0,0.0),
              size=size,
+             axis=nothing,
+             legend=nothing,
+             bg=:black,
             )
     io = IOBuffer()
     print(io,"\$")
     printpoly(io,g,MIME"text/latex"(),descending_powers=true)
     print(io,"\$")
     annotation = LaTeXString(String(take!(io)))
-    printpoly(io,g,MIME"text/plain"(),descending_powers=true)
-    plannotation = String(take!(io))
-    annotcoords=(0.8-0.011*length(plannotation),1.0,-0.95,-0.85) # x1, x2, y1, y2
+    annotation_size = Plots.text_size(annotation,14)
+    annotcoords=(0.9-0.011*annotation_size[1]/annotation_size[2],1.0,-0.95,-0.85) # x1, x2, y1, y2
     if !isnothing(labelplatecolor)
         plot!(pl,
               Shape(
                     [annotcoords[[1,2,2,1]]...]*aleph*R, # x1, x2, x2, x1
                     [annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2] # y1, y1, y2, y2
                    ),
-              opacity=0.1,color=labelplatecolor,linecolor=nothing
+              opacity=0.1,color=labelplatecolor,linecolor=nothing,
+              padding=(0.0,0.0),margins=(0.0,0.0),
+              axis=false,
+              bg=nothing,
              )
     end
     annotate!(pl,
@@ -55,6 +61,8 @@ function juliaPlot(
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
               size=size,
+              padding=(0.0,0.0),margins=(0.0,0.0),
+              axis=false,
              )
 
     if !isnothing(filename)
