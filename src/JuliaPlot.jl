@@ -1,7 +1,7 @@
 module JuliaPlot
 using Plots, Latexify, LaTeXStrings, Printf, Polynomials
 
-export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation
+export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation,juliaMatrix,mandelbrotMatrix
 
 function juliaPlot(
                    ;
@@ -18,8 +18,8 @@ function juliaPlot(
                    pl::Plots.Plot = heatmap(
                                             aspect_ratio=:equal,
                                             axis=false,
-                                            legend=nothing,
-                                            ticks=nothing,
+                                            legend=false,
+                                            ticks=false,
                                             bg=:black,
                                            )
                   )
@@ -33,8 +33,8 @@ function juliaPlot(
              color=color,
              padding=(0.0,0.0),margins=(0.0,0.0),
              size=size,
-             axis=nothing,
-             legend=nothing,
+             axis=false,
+             legend=false,
              bg=:black,
             )
     io = IOBuffer()
@@ -53,7 +53,7 @@ function juliaPlot(
               opacity=0.1,color=labelplatecolor,linecolor=nothing,
               padding=(0.0,0.0),margins=(0.0,0.0),
               axis=false,
-              bg=nothing,
+              bg=:black,
              )
     end
     annotate!(pl,
@@ -83,9 +83,9 @@ function mandelbrotPlot(
                         color::Symbol = :hawaii,
                         pl::Union{Plots.Plot,Nothing} = heatmap(
                                                                 aspect_ratio=:equal,
-                                                                axis=:black,
-                                                                legend=nothing,
-                                                                ticks=nothing,
+                                                                axis=false,
+                                                                legend=false,
+                                                                ticks=false,
                                                                 bg=:black,
                                                                ),
                        )::Complex{Float64}
@@ -142,17 +142,17 @@ function plotBoth(
     pl1 = heatmap(
                   aspect_ratio=:equal,
                   size=sizes[1],
-                  axis=:black,
-                  legend=nothing,
-                  ticks=nothing,
+                  axis=false,
+                  legend=false,
+                  ticks=false,
                   bg=:black,
                  )
     pl2 = heatmap(
                   aspect_ratio=:equal,
                   size=sizes[2],
-                  axis=:black,
-                  legend=nothing,
-                  ticks=nothing,
+                  axis=false,
+                  legend=false,
+                  ticks=false,
                   bg=:black,
                  )
     c = mandelbrotPlot(
@@ -273,12 +273,42 @@ function julianimation(
     @animate for c in range(c_small,c_large,length=N_t)
         print("$c\n")
         juliavalues = juliaValue.(Polynomial{Complex{Float64}}(f)+c,complex.(x',y),R,I)
-        pl= heatmap(x,y,juliavalues,ticks=nothing,colorbar=nothing)
-        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=nothing,colorbar=nothing,subplot=2)
+        pl= heatmap(x,y,juliavalues,ticks=false,colorbar=false)
+        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=false,colorbar=false,subplot=2)
         plot!(pl,real.([c_small,c_large]),imag.([c_small,c_large]),subplot=2)
         scatter!(pl,[real(c)],[imag(c)],subplot=2)
     end
 end
 
+function mandelbrotMatrix(;
+                          res::Integer = 200,
+                          R::Float64 = 2.0,
+                          aleph::Float64 = 0.8,
+                          I::Integer = 100,
+                          f::AbstractVector = [0.0,0.0,1.0],
+                          size::Tuple{Integer,Integer} = (1920,1080),
+                         )
+    g = Polynomial{Complex{Float64}}(f)
+    x = range(-aleph*R,aleph*R,length=res)
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
+              length=round(Int,res/size[1]*size[2]))
+    values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I)
+end # mandelbrotMatrix
+
+function juliaMatrix(;
+                     c::Complex = complex(0.6,0.7), # function offset
+                     res::Integer = 200, # x resolution
+                     R::Float64 = 2.0, # Escape radius
+                     aleph::Float64 = 0.8, # Proportion of escape radius to draw
+                     I::Integer = 100, # maximum iteration number
+                     f::AbstractVector = [0.0,0.0,1.0], # function to iterate
+                     size::Tuple{Integer,Integer} = (1920,1080),
+                    )
+    g = Polynomial{Complex{Float64}}(f)+c
+    x = range(-aleph*R,aleph*R,length=res)
+    y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
+              length=round(Int,res/size[1]*size[2]))
+    values = juliaValue.(g,complex.(x',y),R,I)
+end # juliaMatrix
 
 end # module
