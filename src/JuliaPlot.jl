@@ -66,6 +66,7 @@ function juliaPlot(
              )
 
     if !isnothing(filename)
+        closeall() # workaround for darkening issue
         savefig(pl,filename)
     end
     return pl
@@ -122,6 +123,7 @@ function mandelbrotPlot(
               size=size,
              )
         if !isnothing(filename)
+            closeall() # workaround for darkening issue
             savefig(pl,filename)
         end
     end
