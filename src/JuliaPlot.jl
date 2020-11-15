@@ -1,5 +1,5 @@
 module JuliaPlot
-using Plots, Latexify, LaTeXStrings, Printf, Polynomials
+using Plots, Latexify, LaTeXStrings, Printf, Polynomials, Measures
 
 export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation,juliaMatrix,mandelbrotMatrix
 
@@ -31,7 +31,7 @@ function juliaPlot(
     heatmap!(pl,
              x,y,values,
              color=color,
-             padding=(0.0,0.0),margins=(0.0,0.0),
+             padding=0mm,margins=0mm,
              size=size,
              axis=false,
              legend=false,
@@ -51,7 +51,7 @@ function juliaPlot(
                     [annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2] # y1, y1, y2, y2
                    ),
               opacity=0.1,color=labelplatecolor,linecolor=nothing,
-              padding=(0.0,0.0),margins=(0.0,0.0),
+              padding=0mm,margins=0mm,
               axis=false,
               bg=:black,
              )
@@ -61,12 +61,12 @@ function juliaPlot(
               -0.9*aleph*R/size[1]*size[2],
               text(annotation,14,:right),
               size=size,
-              padding=(0.0,0.0),margins=(0.0,0.0),
+              padding=0mm,margins=0mm,
               axis=false,
              )
 
     if !isnothing(filename)
-        closeall() # workaround for darkening issue
+        #closeall() # workaround for darkening issue
         savefig(pl,filename)
     end
     return pl
@@ -106,7 +106,7 @@ function mandelbrotPlot(
         heatmap!(pl;size)
         heatmap!(pl,
                  x,y,values,
-                 color=color,padding=(0.0,0.0),margins=(0.0,0.0),
+                 color=color,padding=0mm,margins=0mm,
                  size=size,
                 )
         annotate!(pl,
@@ -119,7 +119,7 @@ function mandelbrotPlot(
               [x[x_i]],[y[y_i]],
               seriestype=:scatter,
               marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
-              padding=(0.0,0.0),margins=(0.0,0.0),
+              padding=0mm,margins=0mm,
               size=size,
              )
         if !isnothing(filename)
