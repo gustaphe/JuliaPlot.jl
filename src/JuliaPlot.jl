@@ -19,7 +19,7 @@ function juliaPlot(
                                             aspect_ratio=:equal,
                                             axis=false,
                                             legend=false,
-                                            ticks=false,
+                                            ticks=[],
                                             bg=:black,
                                            )
                   )
@@ -86,7 +86,7 @@ function mandelbrotPlot(
                                                                 aspect_ratio=:equal,
                                                                 axis=false,
                                                                 legend=false,
-                                                                ticks=false,
+                                                                ticks=[],
                                                                 bg=:black,
                                                                ),
                        )::Complex{Float64}
@@ -146,7 +146,7 @@ function plotBoth(
                   size=sizes[1],
                   axis=false,
                   legend=false,
-                  ticks=false,
+                  ticks=[],
                   bg=:black,
                  )
     pl2 = heatmap(
@@ -154,7 +154,7 @@ function plotBoth(
                   size=sizes[2],
                   axis=false,
                   legend=false,
-                  ticks=false,
+                  ticks=[],
                   bg=:black,
                  )
     c = mandelbrotPlot(
@@ -275,8 +275,8 @@ function julianimation(
     @animate for c in range(c_small,c_large,length=N_t)
         print("$c\n")
         juliavalues = juliaValue.(Polynomial{Complex{Float64}}(f)+c,complex.(x',y),R,I)
-        pl= heatmap(x,y,juliavalues,ticks=false,colorbar=false)
-        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=false,colorbar=false,subplot=2)
+        pl= heatmap(x,y,juliavalues,ticks=[],colorbar=false)
+        heatmap!(pl,x,y,mandelbrotvalues,inset=(1,bbox(0.05,0.05,0.5,0.5*size[2]/size[1],:bottom,:right)),ticks=[],colorbar=false,subplot=2)
         plot!(pl,real.([c_small,c_large]),imag.([c_small,c_large]),subplot=2)
         scatter!(pl,[real(c)],[imag(c)],subplot=2)
     end
