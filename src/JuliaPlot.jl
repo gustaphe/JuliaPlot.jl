@@ -1,42 +1,38 @@
 module JuliaPlot
 using Plots, Latexify, LaTeXStrings, Printf, Polynomials, Measures
 
-export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation,juliaMatrix,mandelbrotMatrix
+export juliaPlot,mandelbrotPlot,plotBoth,moreLikelyToBeInterestingPlot,julianimation,juliaMatrix,mandelbrotMatrix,multiMonitorJuliaPlot
 
 function juliaPlot(
-                   ;
-                   c::Complex = complex(0.6,0.7), # function offset
-                   res::Integer = 200, # x resolution
-                   R::Float64 = 2.0, # Escape radius
-                   aleph::Float64 = 0.8, # Proportion of escape radius to draw
-                   I::Integer = 100, # maximum iteration number
-                   f::AbstractVector = [0.0,0.0,1.0], # function to iterate
-                   size::Tuple{Integer,Integer} = (1920,1080),
-                   filename::Union{String,Nothing} = nothing,
-                   color::Symbol = :hawaii,
-                   labelplatecolor::Union{Symbol,Nothing} = :white,
-                   pl::Plots.Plot = heatmap(
-                                            aspect_ratio=:equal,
-                                            axis=false,
-                                            legend=false,
-                                            ticks=[],
-                                            bg=:black,
-                                           )
-                  )
+        ;
+        c::Complex = complex(0.6,0.7), # function offset
+        res::Integer = 200, # x resolution
+        R::Float64 = 2.0, # Escape radius
+        aleph::Float64 = 0.8, # Proportion of escape radius to draw
+        I::Integer = 100, # maximum iteration number
+        f::AbstractVector = [0.0,0.0,1.0], # function to iterate
+        size::Tuple{Integer,Integer} = (1920,1080),
+        filename::Union{String,Nothing} = nothing,
+        color::Symbol = :hawaii,
+        labelplatecolor::Union{Symbol,Nothing} = :white,
+        pl = heatmap(
+                     aspect_ratio=:equal,
+                     axis=false,
+                     legend=false,
+                     ticks=[],
+                     bg=:black,
+                    )
+    )
     g = Polynomial{Complex{Float64}}(f)+c
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
-              length=round(Int,res/size[1]*size[2]))
+        length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g,complex.(x',y),R,I)
     heatmap!(pl,
-             x,y,values,
-             color=color,
-             padding=0mm,margins=0mm,
-             size=size,
-             axis=false,
-             legend=false,
-             bg=:black,
-            )
+        x,y,values,
+        color=color,
+       )
+    #= Annotation (disable for now)
     io = IOBuffer()
     print(io,"\$")
     printpoly(io,g,MIME"text/latex"(),descending_powers=true)
@@ -45,25 +41,26 @@ function juliaPlot(
     annotation_size = Plots.text_size(annotation,14)
     annotcoords=(0.9-0.011*annotation_size[1]/annotation_size[2],1.0,-0.95,-0.85) # x1, x2, y1, y2
     if !isnothing(labelplatecolor)
-        plot!(pl,
-              Shape(
-                    [annotcoords[[1,2,2,1]]...]*aleph*R, # x1, x2, x2, x1
-                    [annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2] # y1, y1, y2, y2
-                   ),
-              opacity=0.1,color=labelplatecolor,linecolor=nothing,
-              padding=0mm,margins=0mm,
-              axis=false,
-              bg=:black,
-             )
+    plot!(pl,
+    Shape(
+    [annotcoords[[1,2,2,1]]...]*aleph*R, # x1, x2, x2, x1
+    [annotcoords[[3,3,4,4]]...]*aleph*R/size[1]*size[2] # y1, y1, y2, y2
+    ),
+    opacity=0.1,color=labelplatecolor,linecolor=nothing,
+    padding=0mm,margins=0mm,
+    axis=false,
+    bg=:black,
+    )
     end
     annotate!(pl,
-              0.9*aleph*R,
-              -0.9*aleph*R/size[1]*size[2],
-              text(annotation,14,:right),
-              size=size,
-              padding=0mm,margins=0mm,
-              axis=false,
-             )
+    0.9*aleph*R,
+    -0.9*aleph*R/size[1]*size[2],
+    text(annotation,14,:right),
+    size=size,
+    padding=0mm,margins=0mm,
+    axis=false,
+    )
+    =#
 
     if !isnothing(filename)
         #closeall() # workaround for darkening issue
@@ -73,57 +70,45 @@ function juliaPlot(
 end # function juliaPlot
 
 function mandelbrotPlot(
-                        ;
-                        res::Integer = 200,
-                        R::Float64 = 2.0,
-                        aleph::Float64 = 0.8,
-                        I::Integer = 100,
-                        f::AbstractVector = [0.0,0.0,1.0],
-                        size::Tuple{Integer,Integer} = (1920,1080),
-                        filename::Union{String,Nothing} = nothing,
-                        color::Symbol = :hawaii,
-                        pl::Union{Plots.Plot,Nothing} = heatmap(
-                                                                aspect_ratio=:equal,
-                                                                axis=false,
-                                                                legend=false,
-                                                                ticks=[],
-                                                                bg=:black,
-                                                               ),
-                       )::Complex{Float64}
+        ;
+        res::Integer = 200,
+        R::Float64 = 2.0,
+        aleph::Float64 = 0.8,
+        I::Integer = 100,
+        f::AbstractVector = [0.0,0.0,1.0],
+        size::Tuple{Integer,Integer} = (1920,1080),
+        filename::Union{String,Nothing} = nothing,
+        color::Symbol = :hawaii,
+        pl = heatmap(
+                     aspect_ratio=:equal,
+                     axis=false,
+                     legend=false,
+                     ticks=[],
+                     bg=:black,
+                    ),
+    )::Complex{Float64}
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
-              length=round(Int,res/size[1]*size[2]))
+        length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I)
-    (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))))
+    (y_i,x_i) = div.(size,2)
+    try
+        (y_i,x_i) = Tuple(rand(findall( (values .> 0.5*I) .& (values.< 0.9*I))))
+    catch
+    end
     c = complex(x[x_i],y[y_i])
     if !isnothing(pl)
-        io = IOBuffer()
-        print(io,"\$")
-        printpoly(io,g,MIME"text/latex"(),descending_powers=true)
-        print(io,"\$")
-        annotation = LaTeXString(String(take!(io)))
-        heatmap!(pl;size)
         heatmap!(pl,
                  x,y,values,
-                 color=color,padding=0mm,margins=0mm,
-                 size=size,
+                 color=color,
                 )
-        annotate!(pl,
-                  0.9*aleph*R,
-                  -0.9*aleph*R/size[1]*size[2],
-                  text(annotation,14,:right),
-                  size=size,
-                 )
         plot!(pl,
               [x[x_i]],[y[y_i]],
               seriestype=:scatter,
-              marker = (:circle, size[1]/100, :white, stroke(0.2, 0.2, :black)),
-              padding=0mm,margins=0mm,
-              size=size,
+              marker = (:circle, size[1]/250, :white, stroke(0.2, 0.2, :black)),
              )
         if !isnothing(filename)
-            closeall() # workaround for darkening issue
             savefig(pl,filename)
         end
     end
@@ -131,60 +116,60 @@ function mandelbrotPlot(
 end # mandelbrotPlot
 
 function plotBoth(
-                  ;
-                  f=[0.0,0.0,1.0],
-                  res=2000,
-                  sizes=(2000,1000),
-                  filename=nothing,
-                  color=:hawaii,
-                 )
+        ;
+        f=[0.0,0.0,1.0],
+        res=2000,
+        sizes=(2000,1000),
+        filename=nothing,
+        color=:hawaii,
+    )
     sizes = eltype(sizes)<:Integer ? (sizes,sizes) : sizes
     res = typeof(res)<:Tuple ? res : (res,res)
     filenames = eltype(filename)<:String ? filename : (nothing,nothing)
     pl1 = heatmap(
-                  aspect_ratio=:equal,
-                  size=sizes[1],
-                  axis=false,
-                  legend=false,
-                  ticks=[],
-                  bg=:black,
-                 )
+        aspect_ratio=:equal,
+        size=sizes[1],
+        axis=false,
+        legend=false,
+        ticks=[],
+        bg=:black,
+    )
     pl2 = heatmap(
-                  aspect_ratio=:equal,
-                  size=sizes[2],
-                  axis=false,
-                  legend=false,
-                  ticks=[],
-                  bg=:black,
-                 )
+        aspect_ratio=:equal,
+        size=sizes[2],
+        axis=false,
+        legend=false,
+        ticks=[],
+        bg=:black,
+    )
     c = mandelbrotPlot(
-                       ;
-                       f=f,
-                       res=res[1],
-                       size=sizes[1],
-                       pl=pl1,
-                       filename=filenames[1],
-                       color=color,
-                      )
+        ;
+        f=f,
+        res=res[1],
+        size=sizes[1],
+        pl=pl1,
+        filename=filenames[1],
+        color=color,
+    )
     juliaPlot(
-              ;
-              c=c,
-              f=f,
-              res=res[2],
-              size=sizes[2],
-              pl=pl2,
-              filename=filenames[2],
-              color=color,
-             )
+        ;
+        c=c,
+        f=f,
+        res=res[2],
+        size=sizes[2],
+        pl=pl2,
+        filename=filenames[2],
+        color=color,
+    )
     l = @layout([
                  a;
                  b
                 ])
     pl = plot(pl1,pl2,
-              layout=( # TODO I think you have to specify size here...
-                      l
-                     ),
-              size=(maximum(getindex.(sizes,1)),sum(getindex.(sizes,2))))
+        layout=( # TODO I think you have to specify size here...
+                l
+               ),
+        size=(maximum(getindex.(sizes,1)),sum(getindex.(sizes,2))))
     if eltype(filename)<:String
         savefig(pl,filename)
     end
@@ -192,40 +177,40 @@ function plotBoth(
 end # plotBoth
 
 function moreLikelyToBeInterestingPlot(
-                                       ;
-                                       f=[0.0,0.0,1.0],
-                                       res=(300,2000),
-                                       sizes=((300,200),(2000,1000)),
-                                       filename=nothing,
-                                       color=:hawaii,
-                                       labelplatecolor=:white,
-                                      )
+        ;
+        f=[0.0,0.0,1.0],
+        res=(300,2000),
+        sizes=((300,200),(2000,1000)),
+        filename=nothing,
+        color=:hawaii,
+        labelplatecolor=:white,
+    )
     sizes = eltype(sizes)<:Integer ? (sizes,sizes) : sizes
     res = typeof(res)<:Tuple ? res : (res,res)
     c = mandelbrotPlot(
-                       res=res[1],
-                       f=f,
-                       size=sizes[1],
-                       color=color,
-                       pl=nothing,
-                      )
+        res=res[1],
+        f=f,
+        size=sizes[1],
+        color=color,
+        pl=nothing,
+    )
     juliaPlot(
-              c=c, # function offset
-              res=res[2], # x resolution
-              f=f, # function to iterate
-              size=sizes[2],
-              filename=filename,
-              color=color,
-              labelplatecolor=labelplatecolor,
-             )
+        c=c, # function offset
+        res=res[2], # x resolution
+        f=f, # function to iterate
+        size=sizes[2],
+        filename=filename,
+        color=color,
+        labelplatecolor=labelplatecolor,
+    )
 end
 
 function juliaValue(
-                    f::Polynomial, # Function to evaluate
-                    z_0::Complex, # Starting point
-                    R::Real, # Escape radius
-                    I::Integer=100, # Max i
-                   )::Int64
+        f::Polynomial, # Function to evaluate
+        z_0::Complex, # Starting point
+        R::Real, # Escape radius
+        I::Integer=100, # Max i
+    )::Int64
     i = 0
     z = z_0
     R = R^2
@@ -237,27 +222,27 @@ function juliaValue(
 end # function juliaValue
 
 function juliaValues(
-                     f::Union{Function,Polynomial}, # Function to evaluate
-                     z_0::Complex, # Starting point
-                     R::Real, # Escape radius
-                     I::Integer=100, # Max i
-                    )::Vector{Complex{Float64}}
+        f::Union{Function,Polynomial}, # Function to evaluate
+        z_0::Complex, # Starting point
+        R::Real, # Escape radius
+        I::Integer=100, # Max i
+    )::Vector{Complex{Float64}}
     R = R^2
     return collect(Complex{Float64},takewhile(x->abs2(x)<R,IterTools.take(iterated(f,z_0),I)))
 end # function juliaValues
 
 function julianimation(
-                       ;
-                       f=[0.0,0.0,1.0],
-                       res=500,
-                       N_t=10,
-                       filename=nothing,
-                       color=:rainbow,
-                       R::Float64 = 2.0, # Escape radius
-                       aleph::Float64 = 0.8, # Proportion of escape radius to draw
-                       I::Integer = 100, # maximum iteration number
-                       size::Tuple{Integer,Integer} = (1920,1080),
-                      )
+        ;
+        f=[0.0,0.0,1.0],
+        res=500,
+        N_t=10,
+        filename=nothing,
+        color=:rainbow,
+        R::Float64 = 2.0, # Escape radius
+        aleph::Float64 = 0.8, # Proportion of escape radius to draw
+        I::Integer = 100, # maximum iteration number
+        size::Tuple{Integer,Integer} = (1920,1080),
+    )
 
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],length=round(Int,res/size[1]*size[2]))
@@ -283,34 +268,79 @@ function julianimation(
 end
 
 function mandelbrotMatrix(;
-                          res::Integer = 200,
-                          R::Float64 = 2.0,
-                          aleph::Float64 = 0.8,
-                          I::Integer = 100,
-                          f::AbstractVector = [0.0,0.0,1.0],
-                          size::Tuple{Integer,Integer} = (1920,1080),
-                         )
+        res::Integer = 200,
+        R::Float64 = 2.0,
+        aleph::Float64 = 0.8,
+        I::Integer = 100,
+        f::AbstractVector = [0.0,0.0,1.0],
+        size::Tuple{Integer,Integer} = (1920,1080),
+    )
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
-              length=round(Int,res/size[1]*size[2]))
+        length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g.+complex.(x',y),complex(0.0,0.0),R,I)
 end # mandelbrotMatrix
 
 function juliaMatrix(;
-                     c::Complex = complex(0.6,0.7), # function offset
-                     res::Integer = 200, # x resolution
-                     R::Float64 = 2.0, # Escape radius
-                     aleph::Float64 = 0.8, # Proportion of escape radius to draw
-                     I::Integer = 100, # maximum iteration number
-                     f::AbstractVector = [0.0,0.0,1.0], # function to iterate
-                     size::Tuple{Integer,Integer} = (1920,1080),
-                    )
+        c::Complex = complex(0.6,0.7), # function offset
+        res::Integer = 200, # x resolution
+        R::Float64 = 2.0, # Escape radius
+        aleph::Float64 = 0.8, # Proportion of escape radius to draw
+        I::Integer = 100, # maximum iteration number
+        f::AbstractVector = [0.0,0.0,1.0], # function to iterate
+        size::Tuple{Integer,Integer} = (1920,1080),
+    )
     g = Polynomial{Complex{Float64}}(f)+c
     x = range(-aleph*R,aleph*R,length=res)
     y = range(-aleph*R/size[1]*size[2],aleph*R/size[1]*size[2],
-              length=round(Int,res/size[1]*size[2]))
+        length=round(Int,res/size[1]*size[2]))
     values = juliaValue.(g,complex.(x',y),R,I)
 end # juliaMatrix
+
+function multiMonitorJuliaPlot(;
+        pos = ((0,0,1920,1080),(1920,0,2560,1440)), # tuple of x, y, w, h tuples
+        filename = "~/Images/Julia/background.png",
+        f = vcat(0,rand(-1:0.05:1,rand(2:10))),
+        color = :copper,
+    )
+    sz = (
+          maximum(p[1] + p[3] for p in pos) - minimum(p[1] for p in pos),
+          maximum(p[2] + p[4] for p in pos) - minimum(p[2] for p in pos)
+    );
+    b = Tuple( # collection of inset boxes
+              bbox(p[1]/sz[1], (1-(p[2]+p[4])/sz[2]), p[3]/sz[1], p[4]/sz[2], :bottom, :left) for p in pos
+             );
+    insetpos = (100+pos[end][1],sz[2]+100-pos[end][2]-pos[end][4],100,20)
+    gr(leg=false,framestyle=:none,ticks=nothing,margin=0mm,bg=:black);
+    pl = plot(size=sz);
+    for k = 1:length(pos)
+        plot!(pl,inset=b[k],subplot=k+1)
+    end
+    plot!(pl,inset=bbox((insetpos./sz[[1,2,1,2]])..., :bottom,:left),subplot=length(pos)+2)
+
+    c = mandelbrotPlot(
+        res=length(pos)>1 ? pos[2][3] : 200,
+        f=f,
+        size=length(pos)>1 ? pos[2][3:4] : (200,200),
+        color=color,
+        pl=length(pos)>1 ? pl.subplots[3] : nothing,
+    )
+    juliaPlot(
+        c=c, # function offset
+        res=pos[1][3], # x resolution
+        f=f, # function to iterate
+        size=pos[1][3:4],
+        filename=nothing,
+        color=color,
+        labelplatecolor=:white,
+        pl=pl.subplots[2],
+    )
+    heatmap!(pl.subplots[length(pos)+2],f',color=:seismic,clim=(-1,1))
+
+    savefig(pl,"~/Images/Julia/background.png")
+
+end # mulitMonitorJuliaPlot
+
 
 end # module
