@@ -304,6 +304,10 @@ function multiMonitorJuliaPlot(;
         f = vcat(0,rand(-1:0.05:1,rand(2:10))),
         color = :copper,
     )
+    if length(pos) == 1
+        p = first(pos)
+        pos = (p,(p[1]+p[3]÷20, p[2]+p[4]-p[4]÷20-p[4]÷5, p[3]÷5, p[4]÷5))
+    end
     sz = (
           maximum(p[1] + p[3] for p in pos) - minimum(p[1] for p in pos),
           maximum(p[2] + p[4] for p in pos) - minimum(p[2] for p in pos)
@@ -311,13 +315,14 @@ function multiMonitorJuliaPlot(;
     b = Tuple( # collection of inset boxes
               bbox(p[1]/sz[1], (1-(p[2]+p[4])/sz[2]), p[3]/sz[1], p[4]/sz[2], :bottom, :left) for p in pos
              );
-    insetpos = (100+pos[end][1],sz[2]+100-pos[end][2]-pos[end][4],100,20)
+    p = pos[end]
+    insetpos = ((p[1]+p[3]/20)/sz[1],1-(p[2]+0.9*p[4])/sz[2],(p[3]/5)/sz[1],(p[4]/40)/sz[2])
     gr(leg=false,framestyle=:none,ticks=nothing,margin=0mm,bg=:black);
     pl = plot(size=sz);
     for k = 1:length(pos)
         plot!(pl,inset=b[k],subplot=k+1)
     end
-    plot!(pl,inset=bbox((insetpos./sz[[1,2,1,2]])..., :bottom,:left),subplot=length(pos)+2)
+    plot!(pl,inset=bbox(insetpos..., :bottom,:left),subplot=length(pos)+2)
 
     c = mandelbrotPlot(
         res=length(pos)>1 ? pos[2][3] : 200,
@@ -336,11 +341,10 @@ function multiMonitorJuliaPlot(;
         labelplatecolor=:white,
         pl=pl.subplots[2],
     )
-    heatmap!(pl.subplots[length(pos)+2],f',color=:seismic,clim=(-1,1))
+    heatmap!(pl.subplots[length(pos)+2],f',color=:seaborn_icefire_gradient,clim=(-1,1))
 
     savefig(pl,"~/Images/Julia/background.png")
 
 end # mulitMonitorJuliaPlot
-
 
 end # module
