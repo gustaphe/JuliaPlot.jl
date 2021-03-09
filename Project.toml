@@ -16,7 +16,7 @@ LaTeXStrings = "1.1"
 Latexify = "0.13, 0.14"
 Measures = "0.3"
 Plots = "1.6"
-Polynomials = "1.1"
+Polynomials = "1.1, 2.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
