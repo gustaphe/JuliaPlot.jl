@@ -320,9 +320,9 @@ function multiMonitorJuliaPlot(;
     gr(leg=false,framestyle=:none,ticks=nothing,margin=0mm,bg=:black);
     pl = plot(size=sz);
     for k = 1:length(pos)
-        plot!(pl,inset=b[k],subplot=k+1)
+        plot!(pl,[missing],inset=b[k],subplot=k+1)
     end
-    plot!(pl,inset=bbox(insetpos..., :bottom,:left),subplot=length(pos)+2)
+    plot!(pl,[missing],inset=bbox(insetpos..., :bottom,:left),subplot=length(pos)+2)
 
     c = mandelbrotPlot(
         res=length(pos)>1 ? pos[2][3] : 200,
