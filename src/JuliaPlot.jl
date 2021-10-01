@@ -300,7 +300,7 @@ end # juliaMatrix
 
 function multiMonitorJuliaPlot(;
         pos = ((0,0,1920,1080),(1920,0,2560,1440)), # tuple of x, y, w, h tuples
-        filename = "~/Images/Julia/background.png",
+        filename = "~/Pictures/Julia/background.png",
         f = vcat(0,rand(-1:0.05:1,rand(2:10))),
         color = :copper,
     )
@@ -343,7 +343,7 @@ function multiMonitorJuliaPlot(;
     )
     heatmap!(pl.subplots[length(pos)+2],f',color=:seaborn_icefire_gradient,clim=(-1,1))
 
-    savefig(pl,"~/Images/Julia/background.png")
+    savefig(pl,"~/Pictures/Julia/background.png")
 
 end # mulitMonitorJuliaPlot
 
