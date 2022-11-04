@@ -1,8 +1,7 @@
 module JuliaPlot
 using Plots, Latexify, LaTeXStrings, Printf, Polynomials, Measures
 
-function plotargs()
-    return (;
+const plotargs = (;
         background=:black,
         margin=0mm,
         colorbar=nothing,
@@ -10,8 +9,8 @@ function plotargs()
         axis=nothing,
         aspect_ratio=:equal,
         ticks=[],
+        label=nothing,
     )
-end
 
 export juliaPlot,
     mandelbrotPlot,
@@ -33,7 +32,7 @@ function juliaPlot(;
     filename::Union{String,Nothing}=nothing,
     color::Symbol=:hawaii,
     labelplatecolor::Union{Symbol,Nothing}=:white,
-    pl=heatmap(; plotargs()...),
+    pl=heatmap(; plotargs...),
 )
     g = Polynomial{Complex{Float64}}(f) + c
     x = range(-aleph * R, aleph * R; length=res)
@@ -89,7 +88,7 @@ function mandelbrotPlot(;
     size::Tuple{Integer,Integer}=(1920, 1080),
     filename::Union{String,Nothing}=nothing,
     color::Symbol=:hawaii,
-    pl=heatmap(; plotargs()...),
+    pl=heatmap(; plotargs...),
 )::Complex{Float64}
     g = Polynomial{Complex{Float64}}(f)
     x = range(-aleph * R, aleph * R; length=res)
@@ -126,8 +125,8 @@ function plotBoth(;
     sizes = eltype(sizes) <: Integer ? (sizes, sizes) : sizes
     res = typeof(res) <: Tuple ? res : (res, res)
     filenames = eltype(filename) <: String ? filename : (nothing, nothing)
-    pl1 = heatmap(; size=sizes[1], plotargs()...)
-    pl2 = heatmap(; size=sizes[2], plotargs()...)
+    pl1 = heatmap(; size=sizes[1], plotargs...)
+    pl2 = heatmap(; size=sizes[2], plotargs...)
     c = mandelbrotPlot(; f, res=res[1], size=sizes[1], pl=pl1, filename=filenames[1], color)
     juliaPlot(; c, f, res=res[2], size=sizes[2], pl=pl2, filename=filenames[2], color)
     l = @layout([
@@ -139,7 +138,7 @@ function plotBoth(;
         pl2;
         layout=l,
         size=(maximum(getindex.(sizes, 1)), sum(getindex.(sizes, 2))),
-        plotargs()...
+        plotargs...
     )
     if eltype(filename) <: String
         savefig(pl, filename)
@@ -228,7 +227,7 @@ function julianimation(;
         print("$c\n")
         juliavalues =
             juliaValue.(Polynomial{Complex{Float64}}(f) + c, complex.(x', y), R, I)
-        pl = heatmap(x, y, juliavalues; plotargs()...)
+        pl = heatmap(x, y, juliavalues; plotargs...)
         heatmap!(
             pl,
             x,
@@ -236,7 +235,7 @@ function julianimation(;
             mandelbrotvalues;
             inset=(1, bbox(0.05, 0.05, 0.5, 0.5 * size[2] / size[1], :bottom, :right)),
             subplot=2,
-            plotargs()...,
+            plotargs...,
         )
         plot!(pl, real.([c_small, c_large]), imag.([c_small, c_large]); subplot=2)
         scatter!(pl, [real(c)], [imag(c)]; subplot=2)
@@ -310,8 +309,8 @@ function multiMonitorJuliaPlot(;
         (p[3] / 5) / sz[1],
         (p[4] / 40) / sz[2],
     )
-    gr(; plotargs()...)
-    pl = plot(; size=sz, plotargs()...)
+    gr(; plotargs...)
+    pl = plot(; size=sz, plotargs...)
     for k in 1:length(pos)
         plot!(pl, [missing]; inset=b[k], subplot=k + 1)
     end
